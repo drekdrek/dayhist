@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* This file is for your main application CSS */
+
+.font-mono {
+    font-family: "Roboto Mono", monospace;
+    font-optical-sizing: auto;
+}
+
+.font-sans-serif {
+    font-family: "Roboto", sans-serif;
+    font-optical-sizing: auto;
+}
