@@ -53,8 +53,8 @@ config :dayhist, DayhistWeb.Endpoint,
 # different ports.
 
 config :ueberauth, Ueberauth.Strategy.Spotify.OAuth,
-  client_id: "b328e5050d80458ea32acee68ceed1ca",
-  client_secret: "a1f31c3d141b411e834af1d4a213e4a6"
+  client_id: System.get_env("SPOTIFY_CLIENT_ID"),
+  client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
 
 # Watch static and templates for browser reloading.
 config :dayhist, DayhistWeb.Endpoint,
@@ -66,6 +66,10 @@ config :dayhist, DayhistWeb.Endpoint,
     ]
   ]
 
+config :dayhist,
+  client_id: System.get_env("SPOTIFY_CLIENT_ID"),
+  client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
+  
 # Enable dev routes for dashboard and mailbox
 config :dayhist, dev_routes: true
 
