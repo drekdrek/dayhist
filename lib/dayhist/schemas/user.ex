@@ -6,7 +6,6 @@ defmodule Dayhist.Schemas.User do
     field :user_id, :string
     field :auto_fetch, :boolean, default: false
     field :name, :string
-    field :spotify_id, :string
 
     timestamps()
   end
@@ -14,12 +13,11 @@ defmodule Dayhist.Schemas.User do
   def changeset(user, attrs) do
     user
     |> cast(attrs, [
-      :id,
       :user_id,
       :auto_fetch,
-      :name,
-      :spotify_i
+      :name
     ])
-    |> validate_required([:user_id, :name, :spotify_id])
+    |> cast(attrs, [:user_id, :auto_fetch])
+    |> validate_required([:user_id])
   end
 end

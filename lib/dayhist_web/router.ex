@@ -19,6 +19,11 @@ defmodule DayhistWeb.Router do
 
     # get "/", PageController, :home
     live "/", PageLive, :home
+  end
+
+  scope "/faq", DayhistWeb do
+    pipe_through :browser
+
     get "/autofetch", PageController, :autofetch
   end
 

@@ -1,22 +1,22 @@
 <div class="mx-auto max-w-4xl">
-  <div class="flex flex-col items-center justify-center bg-zinc-100 p-4 rounded-lg text-center">
+  <div class="flex flex-col items-center justify-centerp-4 dark:bg-zinc-600 bg-zinc-100 rounded-lg text-center">
     <%= if !@user_info do %>
-      <div>
-        <p class="text-lg">
-          Welcome to <span class=" font-mono">dayhist</span>, a tool to keep track of your spotify daylist.
+      <div class="dark:text-white">
+        <p class="text-lg dark:text-white">
+          Welcome to <span class="font-mono">dayhi<span class="font-sans-serif">.</span>st</span>, a tool to keep track of your spotify daylist.
         </p>
         <.link
-          class="inline-flex justify-center items-center gap-2 bg-green-100 rounded-lg p-2 px-4 hover:bg-green-200"
+          class="inline-flex justify-center items-center gap-2 bg-green-200 rounded-lg p-2 px-4 text-black hover:bg-green-300"
           href={~p"/auth/spotify"}
         >
           <span class="text-md font-semibold leading-10">
-            Login with <img src="/images/spotify-logo.png" class="inline-block h-10 w-100" />
+            Login with <img src="/images/spotify-logo.svg" class="inline-block h-10 w-100" />
           </span>
         </.link>
-        <p class="text-sm pt-2">
-          Logging in with spotify allows us to access your email address and public playlists.
+        <p class="text-sm pt-2 text-gray-500 dark:text-zinc-200">
+          Logging in with spotify allows us to view your email address and private playlists.
         </p>
-        <p class="text-xs">
+        <p class="text-xs text-gray-500 dark:text-zinc-200">
           (don't worry, we won't email you with newsletters or anything like that)
         </p>
       </div>

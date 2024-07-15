@@ -5,8 +5,11 @@ defmodule Dayhist.Schemas.Daylist do
   schema "daylists" do
     field :user_id, :string
     field :spotify_playlist_id, :string
+    field :spotify_playlist_name, :string
+    field :spotify_playlist_image, :string
     field :date, :date
     field :time_of_day, Dayhist.TimeOfDay
+    field :contents, :map
 
     timestamps()
   end

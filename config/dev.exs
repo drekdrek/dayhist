@@ -52,10 +52,6 @@ config :dayhist, DayhistWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
-config :ueberauth, Ueberauth.Strategy.Spotify.OAuth,
-  client_id: System.get_env("SPOTIFY_CLIENT_ID"),
-  client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
-
 # Watch static and templates for browser reloading.
 config :dayhist, DayhistWeb.Endpoint,
   live_reload: [
@@ -66,10 +62,6 @@ config :dayhist, DayhistWeb.Endpoint,
     ]
   ]
 
-config :dayhist,
-  client_id: System.get_env("SPOTIFY_CLIENT_ID"),
-  client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
-  
 # Enable dev routes for dashboard and mailbox
 config :dayhist, dev_routes: true
 

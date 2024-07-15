@@ -20,7 +20,7 @@ defmodule Dayhist.Repo.Migrations.AddUsersAndDaylists do
     create table(:daylists, primary_key: false) do
       add :id, :serial, primary_key: true
       add :user_id, :string
-      add :name, :string
+      add :name, :string  
       add :spotify_playlist_id, :string
       add :spotify_playlist_name, :string
       add :spotify_playlist_image, :string

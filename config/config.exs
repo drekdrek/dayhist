@@ -24,12 +24,17 @@ config :dayhist, DayhistWeb.Endpoint,
 
 config :ueberauth, Ueberauth,
   providers: [
-    spotify: {Ueberauth.Strategy.Spotify, []}
+    spotify:
+      {Ueberauth.Strategy.Spotify, [default_scope: "playlist-read-private user-read-email"]}
   ]
+
+config :ueberauth, Ueberauth.Strategy.Spotify.OAuth,
+  client_id: System.get_env("SPOTIFY_CLIENT_ID"),
+  client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
 
 config :dayhist, Oban,
   engine: Oban.Engines.Basic,
-  queues: [default: 10],
+  queues: [default: 10, spotify: 25],
   repo: Dayhist.Repo
 
 # Configures the mailer
@@ -62,6 +67,11 @@ config :tailwind,
     ),
     cd: Path.expand("../assets", __DIR__)
   ]
+
+config :dayhist,
+  client_id: System.get_env("SPOTIFY_CLIENT_ID"),
+  client_secret: System.get_env("SPOTIFY_CLIENT_SECRET"),
+  user_account_id: System.get_env("SPOTIFY_USER_ACCOUNT_ID")
 
 # Configures Elixir's Logger
 config :logger, :console,

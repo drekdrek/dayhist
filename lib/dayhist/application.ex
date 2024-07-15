@@ -24,31 +24,22 @@ defmodule Dayhist.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Dayhist.Supervisor]
-    Supervisor.start_link(children, opts)
-
+    ret = Supervisor.start_link(children, opts)
     start_spotify_worker()
-
-    # schedule_spotify_playlist_jobs()
+    ret
   end
 
-  defp start_spotify_worker do
+  @spec start_spotify_worker() :: {:ok, Oban.Job.t()}
+  def start_spotify_worker() do
     {:ok, _job} =
-      Oban.insert(%Oban.Job{
-        worker: Dayhist.Workers.SpotifyPlaylistWorker
-      })
+      %{
+        client_id: Application.get_env(:dayhist, :client_id),
+        client_secret: Application.get_env(:dayhist, :client_secret)
+      }
+      |> Dayhist.Workers.SpotifyWorkDistributor.new(queue: :default, max_attempts: 1)
+      |> Oban.insert()
   end
 
-  # defp schedule_spotify_playlist_jobs do
-  #   users = Dayhist.Repo.all(Dayhist.Schemas.User)
-
-  #   Enum.each(users, fn user ->
-  #     {:ok, _job} =
-  #       Oban.insert(%Oban.Job{
-  #         worker: Dayhist.Workers.SpotifyPlaylistWorker,
-  #         args: %{"user_id" => user.id, "playlist_id" => "desired_playlist_id"}
-  #       })
-  #   end)
-  # end
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
