@@ -25,7 +25,13 @@ defmodule Dayhist.Workers.SpotifyWorkDistributor do
     # query the database for all users with auto_fetch set to true
     users = Dayhist.Repo.all(from u in User, where: u.auto_fetch == true)
 
-    interval = @hour_in_seconds / length(users)
+    interval =
+      if length(users) > 0 do
+        @hour_in_seconds / length(users)
+      else
+        # or some other default value
+        0
+      end
 
     Enum.with_index(users, fn user, index ->
       schedule_time = index * interval
