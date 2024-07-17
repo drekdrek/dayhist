@@ -8,7 +8,24 @@ defmodule DayhistWeb.PageController do
   end
 
   def autofetch(conn, _params) do
-    conn = conn |> assign(:page_title, "Autofetch FAQ") |> assign(:user_info, nil)
+    faq = [
+      #   %{
+      #     q: "What is dayhi.st Auto-fetch?",
+      #     a:
+      #       "Auto-fetch will automatically, every hour, attempt to fetch your Spotify Daylist and store it in dayhi.st's database."
+      #   },
+      #   %{
+      #     q: "Why should i use dayhi.st?",
+      #     a:
+      #       "dayhi.st keeps track your daylists and allows you to easily access, save, and share them. "
+      #   }
+    ]
+
+    conn =
+      conn
+      |> assign(:page_title, "dayhi.st FAQ")
+      |> assign(:user_info, nil)
+      |> assign(:faq, faq)
 
     render(conn, :autofetch, layout: false)
   end
