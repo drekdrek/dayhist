@@ -1,7 +1,9 @@
 defmodule Dayhist.Workers.SpotifyPlaylistWorker do
   @moduledoc false
-  use Oban.Worker, queue: :spotify, max_attempts: 5
+  use Oban.Worker, queue: :spotify, max_attempts: 2
   alias Dayhist.{Repo, Schemas.SpotifyToken, Schemas.Daylist}
+
+  alias Phoenix.PubSub
 
   import Ecto.Query
   require Logger
@@ -11,7 +13,11 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
 
   @impl Oban.Worker
   def perform(%Oban.Job{
-        args: %{"user_id" => user_id, "client_id" => client_id, "client_secret" => client_secret}
+        args: %{
+          "user_id" => user_id,
+          "client_id" => client_id,
+          "client_secret" => client_secret
+        }
       }) do
     Logger.info("getting spotify playlist for user #{user_id}")
 
@@ -30,22 +36,47 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
         spotify_token
       end
 
-    Logger.info("get_playlists(user_id: #{user_id}, access_token: #{spotify_token.access_token})")
+    get_and_store_daylist(user_id, spotify_token.access_token)
+  end
 
-    case get_daylist(spotify_token.access_token) do
+  defp get_and_store_daylist(user_id, access_token) do
+    case get_daylist(access_token) do
       {:ok, daylist} ->
         case Regex.run(@regex, daylist["name"]) do
           [_, captured_group] ->
-            Logger.info("Captured group: #{captured_group}")
+            # Define the query to count records with specified filters
+            query =
+              from(d in Daylist,
+                where:
+                  d.user_id == ^user_id and
+                    d.spotify_playlist_name == ^daylist["name"] and
+                    d.date == ^Date.utc_today(),
+                select: count(d.uuid)
+              )
 
-          Repo.insert(Daylist, %{
-            user_id: user_id,
-            spotify_playlist_id: daylist["external_urls"]["spotify"],
-            date: Date.utc_today(),
-            time_of_day: captured_group
-          })
+            # Run the query and handle the result
+            Repo.one(query)
+            |> case do
+              0 ->
+                # If no matching records are found, insert a new record
+                Repo.insert(%Daylist{
+                  user_id: user_id,
+                  spotify_playlist_id: daylist["external_urls"]["spotify"],
+                  date: Date.utc_today(),
+                  time_of_day: captured_group,
+                  spotify_playlist_name: daylist["name"],
+                  spotify_playlist_image: daylist["images"] |> Enum.at(0) |> Map.get("url"),
+                  contents: daylist["tracks"]["items"]
+                })
 
-          :ok
+                # send an message to the user, if they are online to update the page liveview
+                PubSub.broadcast(Dayhist.PubSub, "daylists:update", {:ok, user_id})
+
+                :ok
+
+              _ ->
+                :ok
+            end
 
           _ ->
             Logger.warning("Playlist name does not match the expected pattern.")
@@ -59,16 +90,15 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
   end
 
   defp get_daylist(access_token) do
-    response =
-      Req.get!("https://api.spotify.com/v1/playlists/#{@daylist_id}",
+    {:ok, response} =
+      Req.get("https://api.spotify.com/v1/playlists/#{@daylist_id}",
         headers: [{"Authorization", "Bearer #{access_token}"}]
       )
-      |> Logger.info(label: "response_daylist")
 
-    if response.status_code == 200 do
-      {:ok, Jason.decode!(response.body)}
+    if response.status == 200 do
+      {:ok, response.body}
     else
-      {:error, response.status_code}
+      {:error, response.status}
     end
   end
 
@@ -92,7 +122,7 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
 
     case response do
       {:ok, %Req.Response{status: status, body: body}} when status in 200..299 ->
-        store_token(spotify_token.spotify_id, body)
+        store_token(spotify_token.spotify_id, body, spotify_token.refresh_token)
 
         %{
           access_token: body["access_token"],
@@ -110,11 +140,16 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
     end
   end
 
-  defp store_token(user_id, %{
-         access_token: access_token,
-         refresh_token: refresh_token,
-         expires_at: expires_at
-       }) do
+  defp store_token(
+         user_id,
+         %{
+           "access_token" => access_token,
+           "expires_in" => expires_in,
+           "token_type" => _token_type,
+           "scope" => _scope
+         },
+         refresh_token
+       ) do
     Logger.info("storing spotify token")
 
     # add the new token to the database
@@ -124,14 +159,14 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
       user_id: user_id,
       access_token: access_token,
       refresh_token: refresh_token,
-      expires_at: DateTime.add(DateTime.utc_now(), expires_at + 10, :second)
+      expires_at: DateTime.add(DateTime.utc_now(), expires_in, :second)
     })
     |> Repo.insert(
       on_conflict: {:replace_all, [:access_token, :refresh_token, :expires_at]},
       conflict_target: [:user_id]
     )
 
-    #remove tokens that are expired
+    # remove tokens that are expired
     # Repo.one(SpotifyToken, order_by: [asc: :inserted_at])
     # |> Repo.delete()
   end

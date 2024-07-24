@@ -8,7 +8,7 @@ defmodule Dayhist.Workers.SpotifyWorkDistributor do
 
   alias Dayhist.Workers.{SpotifyPlaylistWorker, SpotifyWorkDistributor}
 
-  @hour_in_seconds 60 * 60
+  @one_hour 60 * 60
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"client_id" => nil, "client_secret" => nil}} = _job) do
@@ -17,9 +17,13 @@ defmodule Dayhist.Workers.SpotifyWorkDistributor do
   end
 
   @impl Oban.Worker
-  def perform(
-        %Oban.Job{args: %{"client_id" => client_id, "client_secret" => client_secret}} = _job
-      ) do
+  def perform(%Oban.Job{
+        args: %{"client_id" => client_id, "client_secret" => client_secret} = args
+      }) do
+    args
+    |> new(schedule_in: @one_hour)
+    |> Oban.insert!()
+
     Logger.info("starting SpotifyWorkDistributor job")
 
     # query the database for all users with auto_fetch set to true
@@ -27,7 +31,7 @@ defmodule Dayhist.Workers.SpotifyWorkDistributor do
 
     interval =
       if length(users) > 0 do
-        @hour_in_seconds / length(users)
+        @one_hour / length(users)
       else
         # or some other default value
         0
@@ -48,14 +52,11 @@ defmodule Dayhist.Workers.SpotifyWorkDistributor do
         }
         |> SpotifyPlaylistWorker.new(
           queue: :spotify,
-          max_attempts: 1,
-          schedule_in: schedule_time
+          max_attempts: 2,
+          schedule_in: trunc(schedule_time)
         )
         |> Oban.insert()
     end)
-
-    SpotifyWorkDistributor.new(%{}, schedule_in: @hour_in_seconds)
-    |> Oban.insert()
 
     :ok
   end
