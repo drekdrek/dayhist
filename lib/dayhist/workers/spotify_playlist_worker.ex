@@ -9,7 +9,7 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
   require Logger
 
   @daylist_id "37i9dQZF1EP6YuccBxUcC1"
-  @regex ~r/daylist • .* (evening|morning|afternoon|night)/
+  @regex ~r/daylist • .* (evening|morning|afternoon|night|early morning|late night)/
 
   @impl Oban.Worker
   def perform(%Oban.Job{
