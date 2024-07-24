@@ -2,14 +2,20 @@ defmodule Dayhist.Schemas.Daylist do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {
+    Flop.Schema,
+    filterable: [:time_of_day, :date], sortable: [:date]
+  }
+
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
   schema "daylists" do
     field :user_id, :string
     field :spotify_playlist_id, :string
     field :spotify_playlist_name, :string
     field :spotify_playlist_image, :string
     field :date, :date
-    field :time_of_day, Dayhist.TimeOfDay
-    field :contents, :map
+    field :time_of_day, :string
+    field :contents, {:array, :map}
 
     timestamps()
   end
@@ -17,14 +23,15 @@ defmodule Dayhist.Schemas.Daylist do
   def changeset(daylist, attrs) do
     daylist
     |> cast(attrs, [
-      :id,
       :user_id,
       :spotify_playlist_id,
+      :spotify_playlist_name,
+      :spotify_playlist_image,
       :date,
-      :time_of_day
+      :time_of_day,
+      :contents
     ])
     |> validate_required([
-      :id,
       :spotify_playlist_id,
       :user_id,
       :date,
