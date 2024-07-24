@@ -11,7 +11,7 @@ services:
     volumes:
       - ./db/pgdata:/var/lib/postgresql/data
   phx:
-    build: ./phx
+    build: .
     restart: unless-stopped
     env_file:
       - .env
