@@ -5,11 +5,13 @@
       id="daylist-form"
       phx-change="update-filter"
       phx-submit="update-filter"
-      class="dark:text-white"
+      class="dark:text-white text-left"
     >
       <Flop.Phoenix.table items={@daylists} meta={@meta} path={~p"/"}>
         <:col :let={daylist} label="Name" field={:name}>
-          <%= daylist.spotify_playlist_name |> String.replace("daylist • ", "") %>
+          <.link href={~p"/p/#{daylist.uuid |> String.replace("-", "")}"} class="text-blue-500">
+            <%= daylist.spotify_playlist_name |> String.replace("daylist • ", "") %>
+          </.link>
         </:col>
       </Flop.Phoenix.table>
     </.form>

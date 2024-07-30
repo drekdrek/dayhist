@@ -11,7 +11,11 @@ defmodule DayhistWeb.PageLive do
   @pubsub_topic "daylists:update"
 
   def handle_params(params, _url, socket) do
-    update_daylists(params, socket)
+    if socket.assigns.user_info do
+      update_daylists(params, socket)
+    else
+      {:noreply, socket}
+    end
   end
 
   def mount(_params, session, socket) do
