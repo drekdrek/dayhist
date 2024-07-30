@@ -54,6 +54,15 @@
                 >
                   Logout
                 </.link>
+              
+              <% else %>
+                <.link
+                  href={~p"/auth/spotify"}
+                  method="get"
+                  class="hover:text-zinc-400 dark:hover:text-zinc-500 pl-4"
+                >
+                  Login with Spotify
+                </.link>
               <% end %>
             </div>
           </div>
