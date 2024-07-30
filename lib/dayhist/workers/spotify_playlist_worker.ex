@@ -24,9 +24,13 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
     # Replace this with your function to get playlist information using Spotify API
     # get the most recent SpotifyToken
     spotify_token =
-      Repo.one(
-        from st in SpotifyToken, where: st.spotify_id == ^user_id, order_by: [asc: st.inserted_at]
+      Repo.all(
+        from st in SpotifyToken,
+          where: st.spotify_id == ^user_id,
+          order_by: [desc: st.expires_at],
+          limit: 1
       )
+      |> List.first()
 
     spotify_token =
       if DateTime.diff(spotify_token.expires_at, DateTime.utc_now()) < 0 do
