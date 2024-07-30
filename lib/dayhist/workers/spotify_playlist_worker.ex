@@ -170,8 +170,16 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
       conflict_target: [:user_id]
     )
 
+    delete_expired_tokens(user_id)
     # remove tokens that are expired
     # Repo.one(SpotifyToken, order_by: [asc: :inserted_at])
     # |> Repo.delete()
+  end
+
+  defp delete_expired_tokens(user_id) do
+    Repo.delete_all(
+      from st in SpotifyToken,
+        where: st.spotify_id == ^user_id and st.expires_at < ^DateTime.utc_now()
+    )
   end
 end
