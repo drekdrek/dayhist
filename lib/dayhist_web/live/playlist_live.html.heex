@@ -1,0 +1,51 @@
+<div class="p-2">
+  <%= if @playlist do %>
+    <div class="py-2">
+      <img src={@playlist.spotify_playlist_image} class="h-16 w-16 rounded-lg inline-block" />
+
+      <span>
+        <%= @playlist.spotify_playlist_name
+        |> String.replace("daylist • ", "")
+        |> String.replace(@playlist.time_of_day, "") %>
+        <span class="medium"><%= @playlist.time_of_day %></span>
+      </span>
+    </div>
+    <% Map.keys(@playlist) |> Enum.join(", ") %>
+
+    <hr class="border-zinc-700 dark:border-zinc-300 py-1" />
+    <div class="columns-5 gap-2 mb-4">
+      <%= for track <- Enum.take(@playlist.contents, div(length(@playlist.contents), 5) * 5) do %>
+        <div class="break-inside-avoid p-2">
+          <.live_component
+            id={track["track"]["id"]}
+            module={DayhistWeb.TrackComponent}
+            track={track}
+          />
+        </div>
+      <% end %>
+    </div>
+
+    <% remaining_tracks = rem(length(@playlist.contents), 5) %>
+    <%= if remaining_tracks > 0 do %>
+      <div class="flex justify-center">
+        <div class={"grid gap-4 grid-cols-#{remaining_tracks} auto-rows-auto"}>
+          <%= for track <- Enum.drop(@playlist.contents, div(length(@playlist.contents), 5) * 5) do %>
+            <.live_component
+              id={track["track"]["id"]}
+              module={DayhistWeb.TrackComponent}
+              track={track}
+            />
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div>
+      <div class="dark:text-white">
+        <p class="text-lg dark:text-white">
+          Error 404: Playlist not found. <br /> TODO: add more info here
+        </p>
+      </div>
+    </div>
+  <% end %>
+</div>

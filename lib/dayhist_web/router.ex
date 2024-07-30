@@ -14,6 +14,12 @@ defmodule DayhistWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/p", DayhistWeb, layout: {DayhistWeb.Layouts, :playlist} do
+    pipe_through :browser
+
+    live "/:playlist", PlaylistLive, :playlist
+  end
+
   scope "/", DayhistWeb do
     pipe_through :browser
 
