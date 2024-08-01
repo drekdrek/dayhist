@@ -2,7 +2,7 @@ defmodule DayhistWeb.PlaylistLive do
   require Logger
   use DayhistWeb, :live_view
 
-  alias Dayhist.Schemas.Daylist
+  alias Dayhist.Schemas.{Daylist, Track}
   import Ecto.Query
 
   @uuid_regex ~r/([\d\w]{8})([\d\w]{4})([\d\w]{4})([\d\w]{4})([\d\w]{12})/
@@ -17,10 +17,17 @@ defmodule DayhistWeb.PlaylistLive do
     {:ok, socket, layout: {DayhistWeb.Layouts, :playlist}}
   end
 
-  def handle_params(%{"playlist" => playlist}, _url, socket) do
+  def handle_params(%{"playlist" => playlist}, uri, socket) do
+    %URI{
+      path: path
+    } = URI.parse(uri)
+
+    socket =
+      socket |> assign(__path__: path)
+
     playlist_uuid = uuid_to_dashed_uuid(playlist)
 
-    p =
+    playlist =
       try do
         from(d in Daylist, where: d.uuid == ^playlist_uuid) |> Dayhist.Repo.one()
       rescue
@@ -28,13 +35,29 @@ defmodule DayhistWeb.PlaylistLive do
           nil
       end
 
+    tracks =
+      if playlist do
+        from(t in Track, where: t.track_id in ^playlist.contents) |> Dayhist.Repo.all()
+      else
+        []
+      end
+
+    owner =
+      if playlist do
+        Dayhist.Schemas.User |> Dayhist.Repo.get_by(user_id: playlist.user_id) |> Map.get(:name)
+      else
+        ""
+      end
+
     socket =
       socket
-      |> assign(:playlist, p)
+      |> assign(:playlist, playlist)
+      |> assign(:tracks, tracks)
+      |> assign(:playlist_owner, owner)
       |> assign(
         :page_title,
-        if p do
-          p.spotify_playlist_name |> String.replace("daylist • ", "")
+        if playlist do
+          playlist.spotify_playlist_name |> String.replace("daylist • ", "")
         else
           "Playlist not found"
         end
@@ -45,5 +68,4 @@ defmodule DayhistWeb.PlaylistLive do
 
   defp uuid_to_dashed_uuid(playlist_uuid),
     do: playlist_uuid |> String.replace(@uuid_regex, "\\1-\\2-\\3-\\4-\\5")
-
 end

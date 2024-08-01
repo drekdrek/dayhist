@@ -25,7 +25,11 @@ config :dayhist, DayhistWeb.Endpoint,
 config :ueberauth, Ueberauth,
   providers: [
     spotify:
-      {Ueberauth.Strategy.Spotify, [default_scope: "playlist-read-private user-read-email"]}
+      {Ueberauth.Strategy.Spotify,
+       [
+         default_scope:
+           "playlist-read-private user-read-email playlist-modify-public playlist-modify-private"
+       ]}
   ]
 
 config :ueberauth, Ueberauth.Strategy.Spotify.OAuth,
