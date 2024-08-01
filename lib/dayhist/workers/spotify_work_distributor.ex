@@ -6,7 +6,7 @@ defmodule Dayhist.Workers.SpotifyWorkDistributor do
 
   alias Dayhist.Schemas.User
 
-  alias Dayhist.Workers.{SpotifyPlaylistWorker, SpotifyWorkDistributor}
+  alias Dayhist.Workers.SpotifyPlaylistWorker
 
   @one_hour 60 * 60
 
