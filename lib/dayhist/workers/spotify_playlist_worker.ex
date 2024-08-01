@@ -1,15 +1,12 @@
 defmodule Dayhist.Workers.SpotifyPlaylistWorker do
-  @moduledoc false
   use Oban.Worker, queue: :spotify, max_attempts: 2
-  alias Dayhist.{Repo, Schemas.SpotifyToken, Schemas.Daylist}
-
+  alias Dayhist.Repo
+  alias Dayhist.Schemas.{SpotifyToken, Daylist, Track}
   alias Phoenix.PubSub
-
   import Ecto.Query
   require Logger
 
   @daylist_id "37i9dQZF1EP6YuccBxUcC1"
-  @regex ~r/daylist • .* (evening|morning|afternoon|night|early morning|late night)/
 
   @impl Oban.Worker
   def perform(%Oban.Job{
@@ -21,8 +18,6 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
       }) do
     Logger.info("getting spotify playlist for user #{user_id}")
 
-    # Replace this with your function to get playlist information using Spotify API
-    # get the most recent SpotifyToken
     spotify_token =
       Repo.all(
         from st in SpotifyToken,
@@ -46,17 +41,17 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
   defp get_and_store_daylist(user_id, access_token) do
     case get_daylist(access_token) do
       {:ok, daylist} ->
-        case Regex.run(@regex, daylist["name"]) do
-          [_, captured_group] ->
-            # Define the query to count records with specified filters
-            query =
-              from(d in Daylist,
-                where:
-                  d.user_id == ^user_id and
-                    d.spotify_playlist_name == ^daylist["name"] and
-                    d.date == ^Date.utc_today(),
-                select: count(d.uuid)
-              )
+        time_of_day = get_time_of_day(daylist["name"])
+
+        if time_of_day != "" do
+          query =
+            from(d in Daylist,
+              where:
+                d.user_id == ^user_id and
+                  d.spotify_playlist_name == ^daylist["name"] and
+                  d.date == ^Date.utc_today(),
+              select: count(d.uuid)
+            )
 
           Repo.one(query)
           |> case do
@@ -84,18 +79,22 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
                 contents: contents |> Enum.map(fn track -> track.track_id end)
               })
 
-                # send an message to the user, if they are online to update the page liveview
-                PubSub.broadcast(Dayhist.PubSub, "daylists:update", {:ok, user_id})
+              PubSub.broadcast(Dayhist.PubSub, "daylists:update", {:ok, user_id})
 
-                :ok
+              PubSub.broadcast(Dayhist.PubSub, "stats:update", {
+                :update,
+                Dayhist.Schemas.Daylist.count(),
+                Dayhist.Schemas.Track.count()
+              })
 
-              _ ->
-                :ok
-            end
+              :ok
 
-          _ ->
-            Logger.warning("Playlist name does not match the expected pattern.")
-            {:error, :invalid_playlist_name}
+            _ ->
+              :ok
+          end
+        else
+          Logger.warning("Playlist name #{daylist["name"]} does not match the expected pattern.")
+          {:error, :invalid_playlist_name}
         end
 
       {:error, reason} ->
@@ -146,7 +145,6 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
 
       {:ok, %Req.Response{status: status, body: _body}} when status == 429 ->
         Logger.warning("rate limited, retrying in 10 seconds")
-        # retry(client_id, client_secret, 10)
         {:error, :rate_limited}
 
       _ ->
@@ -167,8 +165,6 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
        ) do
     Logger.info("storing spotify token")
 
-    # add the new token to the database
-
     %SpotifyToken{}
     |> SpotifyToken.changeset(%{
       user_id: user_id,
@@ -182,15 +178,51 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
     )
 
     delete_expired_tokens(user_id)
-    # remove tokens that are expired
-    # Repo.one(SpotifyToken, order_by: [asc: :inserted_at])
-    # |> Repo.delete()
   end
 
-  defp delete_expired_tokens(user_id) do
-    Repo.delete_all(
-      from st in SpotifyToken,
-        where: st.spotify_id == ^user_id and st.expires_at < ^DateTime.utc_now()
-    )
+  def delete_expired_tokens(user_id) do
+    {_, to_delete} =
+      Repo.all(
+        from st in SpotifyToken,
+          where: st.spotify_id == ^user_id and st.expires_at < ^DateTime.utc_now()
+      )
+      |> List.pop_at(0)
+
+    Repo.delete_all(from st in SpotifyToken, where: st.id in ^Enum.map(to_delete, & &1.id))
+  end
+
+  defp strip_anchor_tags(html) do
+    Regex.replace(~r/<\/?a[^>]*>/, html, "")
+  end
+
+  defp get_time_of_day(daylist_name) do
+    # get the last two words of the daylist name
+    words = String.split(daylist_name, " ")
+
+    time_of_day =
+      case Enum.reverse(words) do
+        # thanks jeff for making me remember the word penultimate haha
+        [last | [penultimate | _]] when penultimate in ["early", "late"] ->
+          String.downcase("#{penultimate} #{last}")
+
+        [last | _] ->
+          String.downcase(last)
+
+        _ ->
+          ""
+      end
+
+    if time_of_day in [
+         "early morning",
+         "late night",
+         "evening",
+         "morning",
+         "afternoon",
+         "night"
+       ] do
+      time_of_day
+    else
+      ""
+    end
   end
 end
