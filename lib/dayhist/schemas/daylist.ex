@@ -1,5 +1,6 @@
 defmodule Dayhist.Schemas.Daylist do
   use Ecto.Schema
+  import Ecto.Query
   import Ecto.Changeset
 
   @derive {
@@ -15,7 +16,7 @@ defmodule Dayhist.Schemas.Daylist do
     field :spotify_playlist_image, :string
     field :date, :date
     field :time_of_day, :string
-    field :contents, {:array, :map}
+    field :contents, {:array, :string}
 
     timestamps()
   end
@@ -38,4 +39,6 @@ defmodule Dayhist.Schemas.Daylist do
       :time_of_day
     ])
   end
+
+  def count, do: from(d in Dayhist.Schemas.Daylist, select: count(d.uuid)) |> Dayhist.Repo.one()
 end
