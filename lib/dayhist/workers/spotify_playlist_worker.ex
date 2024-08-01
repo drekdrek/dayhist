@@ -58,20 +58,31 @@ defmodule Dayhist.Workers.SpotifyPlaylistWorker do
                 select: count(d.uuid)
               )
 
-            # Run the query and handle the result
-            Repo.one(query)
-            |> case do
-              0 ->
-                # If no matching records are found, insert a new record
-                Repo.insert(%Daylist{
-                  user_id: user_id,
-                  spotify_playlist_id: daylist["external_urls"]["spotify"],
-                  date: Date.utc_today(),
-                  time_of_day: captured_group,
-                  spotify_playlist_name: daylist["name"],
-                  spotify_playlist_image: daylist["images"] |> Enum.at(0) |> Map.get("url"),
-                  contents: daylist["tracks"]["items"]
-                })
+          Repo.one(query)
+          |> case do
+            0 ->
+              contents = daylist["tracks"]["items"] |> Enum.map(&Track.from_api_response/1)
+
+              contents
+              |> Enum.each(fn track_attrs ->
+                # insert into the database, if it already exists, update it
+                case Dayhist.Repo.get(Track, track_attrs.track_id) do
+                  nil -> Track.changeset(%Track{}, track_attrs)
+                  post -> Track.changeset(post, track_attrs)
+                end
+                |> IO.inspect(label: "before insert_or_update")
+                |> Dayhist.Repo.insert_or_update()
+              end)
+
+              Repo.insert(%Daylist{
+                user_id: user_id,
+                spotify_playlist_id: daylist["external_urls"]["spotify"],
+                date: Date.utc_today(),
+                time_of_day: time_of_day,
+                spotify_playlist_name: daylist["name"],
+                spotify_playlist_image: daylist["images"] |> Enum.at(0) |> Map.get("url"),
+                contents: contents |> Enum.map(fn track -> track.track_id end)
+              })
 
                 # send an message to the user, if they are online to update the page liveview
                 PubSub.broadcast(Dayhist.PubSub, "daylists:update", {:ok, user_id})
