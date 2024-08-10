@@ -37,6 +37,27 @@ topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
+window.addEventListener("phx:disable-button", event => {
+  elem = document.getElementById(event.detail.id)
+  console.log(event.detail)
+
+  elem_text = elem.innerText
+  if (elem) {
+    elem.innerText = event.detail.text
+    elem.disabled = true
+    elem.classList.add("opacity-50")
+    elem.classList.add("cursor-not-allowed")
+
+    setTimeout(() => {
+      elem.innerText = elem_text
+      elem.disabled = false
+      elem.classList.remove("opacity-50")
+      elem.classList.remove("cursor-not-allowed")
+    }, 5000)
+  }
+
+ }) 
+
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 
