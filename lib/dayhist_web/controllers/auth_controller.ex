@@ -1,7 +1,4 @@
 defmodule DayhistWeb.AuthController do
-  @moduledoc """
-  Controls authentication via the Spotify API.
-  """
   use DayhistWeb, :controller
 
   require Logger
@@ -11,8 +8,8 @@ defmodule DayhistWeb.AuthController do
 
   @spec callback(Plug.Conn.t(), any) :: Plug.Conn.t()
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
+    redirect_uri = get_session(conn, :redirect_uri) || "/"
     user_id = auth.info.nickname
-    IO.inspect(auth)
 
     user =
       Dayhist.Repo.one(from u in Dayhist.Schemas.User, where: u.user_id == ^auth.info.nickname)
@@ -26,7 +23,7 @@ defmodule DayhistWeb.AuthController do
       })
     end
 
-    # no matter what, store the SpotifyToken in the database
+    # Store the SpotifyToken in the database
 
     Dayhist.Repo.insert(%Dayhist.Schemas.SpotifyToken{
       access_token: auth.credentials.token,
@@ -39,22 +36,25 @@ defmodule DayhistWeb.AuthController do
     |> put_session(:spotify_credentials, auth.credentials)
     |> put_session(:spotify_info, auth.info)
     |> configure_session(renew: true)
-    |> redirect(to: "/")
+    |> redirect(to: redirect_uri)
   end
 
   def callback(%{assigns: %{ueberauth_failure: failure}} = conn, _params) do
+    redirect_uri = get_session(conn, :redirect_uri) || "/"
     Logger.warning("failure: #{inspect(failure)}")
 
     conn
     |> put_flash(:error, gettext("Error authenticating via Spotify"))
     |> configure_session(drop: true)
-    |> redirect(to: "/")
+    |> redirect(to: redirect_uri)
   end
 
-  def delete(conn, _params) do
+  def delete(conn, params) do
+    redirect_uri = params["redirect_uri"] || "/"
+
     conn
     |> configure_session(drop: true)
     |> put_flash(:info, "Logged out successfully.")
-    |> redirect(to: "/")
+    |> redirect(to: redirect_uri)
   end
 end
