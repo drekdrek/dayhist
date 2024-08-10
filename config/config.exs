@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :logger, level: :debug
+
 config :dayhist,
   ecto_repos: [Dayhist.Repo],
   generators: [timestamp_type: :utc_datetime]
@@ -36,10 +38,6 @@ config :ueberauth, Ueberauth.Strategy.Spotify.OAuth,
   client_id: System.get_env("SPOTIFY_CLIENT_ID"),
   client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
 
-config :dayhist, Oban,
-  engine: Oban.Engines.Basic,
-  queues: [default: 10, spotify: 25],
-  repo: Dayhist.Repo
 
 # Configures the mailer
 #
