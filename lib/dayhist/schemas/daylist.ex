@@ -17,6 +17,7 @@ defmodule Dayhist.Schemas.Daylist do
     field :date, :date
     field :time_of_day, :string
     field :contents, {:array, :string}
+    field :description, :string
 
     timestamps()
   end
@@ -30,13 +31,13 @@ defmodule Dayhist.Schemas.Daylist do
       :spotify_playlist_image,
       :date,
       :time_of_day,
-      :contents
+      :contents,
+      :description
     ])
     |> validate_required([
       :spotify_playlist_id,
       :user_id,
-      :date,
-      :time_of_day
+      :date
     ])
   end
 
