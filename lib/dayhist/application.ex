@@ -10,7 +10,6 @@ defmodule Dayhist.Application do
     children = [
       DayhistWeb.Telemetry,
       Dayhist.Repo,
-      {Oban, Application.fetch_env!(:dayhist, Oban)},
       {DNSCluster, query: Application.get_env(:dayhist, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Dayhist.PubSub},
       # Start the Finch HTTP client for sending emails
@@ -18,28 +17,15 @@ defmodule Dayhist.Application do
       # Start a worker by calling: Dayhist.Worker.start_link(arg)
       # {Dayhist.Worker, arg},
       # Start to serve requests, typically the last entry
+      Dayhist.Spotify.Supervisor,
       DayhistWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Dayhist.Supervisor]
-    ret = Supervisor.start_link(children, opts)
-    start_spotify_worker()
-    ret
+    Supervisor.start_link(children, opts)
   end
-
-  @spec start_spotify_worker() :: {:ok, Oban.Job.t()}
-  def start_spotify_worker() do
-    {:ok, _job} =
-      %{
-        client_id: Application.get_env(:dayhist, :client_id),
-        client_secret: Application.get_env(:dayhist, :client_secret)
-      }
-      |> Dayhist.Workers.SpotifyWorkDistributor.new(queue: :default, max_attempts: 1)
-      |> Oban.insert()
-  end
-
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.

@@ -62,7 +62,6 @@ defmodule Dayhist.MixProject do
       {:ueberauth_spotify,
        git: "https://github.com/katafrakt/ueberauth_spotify.git", branch: "csrf-support"},
       {:req, "~> 0.5.0"},
-      {:oban, "~> 2.17"},
       {:flop_phoenix, "~> 0.22.9"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]

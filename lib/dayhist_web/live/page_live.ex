@@ -52,19 +52,6 @@ defmodule DayhistWeb.PageLive do
     autofetch = if auto_fetch == "true", do: true, else: false
 
     if autofetch do
-      Dayhist.Workers.SpotifyPlaylistWorker.new(
-        %{
-          "user_id" => socket.assigns.user_info.nickname,
-          "client_id" => Application.get_env(:dayhist, :client_id),
-          "client_secret" => Application.get_env(:dayhist, :client_secret)
-        },
-        queue: :spotify,
-        max_attempts: 2
-      )
-      |> Oban.insert()
-    end
-
-    if autofetch do
       Logger.info("adding user " <> socket.assigns.user_info.nickname <> " to autofetch list")
     else
       Logger.info("removing user " <> socket.assigns.user_info.nickname <> " from autofetch list")
