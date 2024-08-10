@@ -25,8 +25,7 @@ defmodule DayhistWeb.PageLive do
 
     db_user =
       if session["spotify_info"],
-        do:
-          Dayhist.Schemas.User |> Dayhist.Repo.get_by(user_id: session["spotify_info"].nickname),
+        do: Dayhist.Schemas.User |> Dayhist.Repo.get_by(user_id: session["spotify_info"].nickname),
         else: nil
 
     autofetch =
@@ -48,6 +47,37 @@ defmodule DayhistWeb.PageLive do
     {:ok, socket}
   end
 
+  def handle_info({:ok, user_id}, socket) do
+    # Ignore the message if the user_id doesn't match
+    if user_id == socket.assigns.user_info.nickname do
+      update_daylists(%{}, socket)
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info({:update, playlist_count, song_count}, socket) do
+    socket =
+      socket
+      |> assign(:playlist_count, playlist_count)
+      |> assign(:song_count, song_count)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("fetch-daylist", %{"id" => id}, socket) do
+    # create a new worker to fetch the daylist
+    user_id = socket.assigns.user_info.nickname
+
+    Dayhist.Worker.start_link(user_id)
+
+    socket =
+      socket
+      |> push_event("disable-button", %{id: id, timeout: 5000, text: "fetching daylist..."})
+
+    {:noreply, socket}
+  end
+
   def handle_event("change", %{"auto_fetch" => auto_fetch}, socket) do
     autofetch = if auto_fetch == "true", do: true, else: false
 
@@ -58,9 +88,7 @@ defmodule DayhistWeb.PageLive do
     end
 
     user =
-      Dayhist.Repo.one(
-        from u in Dayhist.Schemas.User, where: u.user_id == ^socket.assigns.user_info.nickname
-      )
+      Dayhist.Repo.one(from u in Dayhist.Schemas.User, where: u.user_id == ^socket.assigns.user_info.nickname)
 
     if user do
       changeset =
@@ -113,13 +141,7 @@ defmodule DayhistWeb.PageLive do
     assigns = assign(assigns, form: Phoenix.Component.to_form(meta), meta: nil)
 
     ~H"""
-    <.form
-      for={@form}
-      id="daylist-form"
-      phx-change="update-filter"
-      phx-submit="update-filter"
-      class="dark:text-white"
-    >
+    <.form for={@form} id="daylist-form" phx-change="update-filter" phx-submit="update-filter" class="dark:text-white">
       <.filter_fields :let={i} form={@form} fields={[:name]}>
         <.input field={i.field} label={i.label} type={i.type} phx-debounce={120} {i.rest} />
       </.filter_fields>
