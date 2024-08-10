@@ -34,7 +34,7 @@ defmodule Dayhist.Schemas.Track do
           "id" => track_id,
           "name" => name,
           "album" => %{"images" => [%{"url" => album_image_url} | _]},
-          "artists" => artists,
+          "artists" => artists
         }
       }) do
     artists_list = Enum.map(artists, & &1["name"])
@@ -43,7 +43,7 @@ defmodule Dayhist.Schemas.Track do
       track_id: track_id,
       name: name,
       album_image_url: album_image_url,
-      artists: artists_list,
+      artists: artists_list
     }
   end
 

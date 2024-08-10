@@ -22,8 +22,7 @@ defmodule DayhistWeb.AuthController do
 
       Dayhist.Repo.insert(%Dayhist.Schemas.User{
         user_id: user_id,
-        auto_fetch: false,
-        name: auth.info.name
+        auto_fetch: false
       })
     end
 
