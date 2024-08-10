@@ -8,6 +8,7 @@ defmodule DayhistWeb.Router do
     plug :put_root_layout, html: {DayhistWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug DayhistWeb.Plugs.SetCounts
   end
 
   pipeline :api do
@@ -33,8 +34,17 @@ defmodule DayhistWeb.Router do
     get "/autofetch", PageController, :autofetch
   end
 
+  pipeline :auth_browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug DayhistWeb.Plugs.RedirectPlug
+  end
+
   scope "/auth", DayhistWeb do
-    pipe_through :browser
+    pipe_through :auth_browser
 
     # get "/login", AuthController, :new
     get "/logout", AuthController, :delete

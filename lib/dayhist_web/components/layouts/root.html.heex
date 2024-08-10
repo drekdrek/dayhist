@@ -21,7 +21,7 @@
 
   <body class="bg-white dark:bg-zinc-800 flex flex-col h-screen justify-between font-sans-serif">
     <header class="px-4 sm:px-6 lg:px-8 max-h-14">
-      <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
+      <div class="flex items-center justify-between border-b dark:border-zinc-100 border-zinc-700  py-3 text-sm">
         <a href="/">
           <div class="inline-flex items-center gap-2 text-xl font-bold font-mono dark:text-white">
             <svg
@@ -36,6 +36,10 @@
             <span class="font-mono">dayhi<span class="font-sans-serif">.</span>st</span>
           </div>
         </a>
+        <div class="text-left text-zinc-700 dark:text-zinc-200 text-lg font-sans-serif">
+          Total Daylists: <%= @playlist_count %> <span class="px-1">|</span>
+          Total Songs: <%= @song_count %>
+        </div>
         <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
           <div class="divide x divide-zinc-500">
             <div class="flex items-center dark:text-white">
@@ -48,16 +52,15 @@
                   </p>
                 </div>
                 <.link
-                  href={~p"/auth/logout"}
+                  href={~p"/auth/logout?redirect_uri=" <> @__path__}
                   method="delete"
                   class="hover:text-zinc-400 dark:hover:text-zinc-500 pl-4"
                 >
                   Logout
                 </.link>
-              
               <% else %>
                 <.link
-                  href={~p"/auth/spotify"}
+                  href={~p"/auth/spotify?redirect_uri=" <> @__path__}
                   method="get"
                   class="hover:text-zinc-400 dark:hover:text-zinc-500 pl-4"
                 >
@@ -84,14 +87,15 @@
 
         <div class="text-sm text-zinc-500 dark:text-zinc-200 font-sans-serif">
           <span class="font-mono">dayhi<span class="font-sans-serif">.</span>st</span>
-          is an open source project by Owen Halliday.
+          you can report bugs and request features on our
           <.link
             href="https://github.com/drekdrek/dayhist"
             method="get"
             class="hover:text-zinc-500 text-blue-500 dark:hover:text-zinc-300 dark:text-blue-300"
           >
-            View on GitHub
+            GitHub
           </.link>
+          page
         </div>
         <div
           class="inline-flex items-center gap-2 text-sm text-zinc-500 pb-2 dark:text-zinc-200 font-sans-serif"

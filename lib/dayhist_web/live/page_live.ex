@@ -8,9 +8,14 @@ defmodule DayhistWeb.PageLive do
 
   import Ecto.Query
 
-  @pubsub_topic "daylists:update"
+  def handle_params(params, uri, socket) do
+    %URI{
+      path: path
+    } = URI.parse(uri)
 
-  def handle_params(params, _url, socket) do
+    socket =
+      socket |> assign(__path__: path)
+
     if socket.assigns.user_info do
       update_daylists(params, socket)
     else
@@ -21,7 +26,8 @@ defmodule DayhistWeb.PageLive do
   def mount(_params, session, socket) do
     # query the database and get the user's auto_fetch setting
 
-    Phoenix.PubSub.subscribe(Dayhist.PubSub, @pubsub_topic)
+    Phoenix.PubSub.subscribe(Dayhist.PubSub, "daylists:update")
+    Phoenix.PubSub.subscribe(Dayhist.PubSub, "stats:update")
 
     db_user =
       if session["spotify_info"],
@@ -125,15 +131,6 @@ defmodule DayhistWeb.PageLive do
 
       {:error, _meta} ->
         {:noreply, socket |> push_navigate(to: ~p"/")}
-    end
-  end
-
-  def handle_info({:ok, user_id}, socket) do
-    # Ignore the message if the user_id doesn't match
-    if user_id == socket.assigns.user_info.nickname do
-      update_daylists(%{}, socket)
-    else
-      {:noreply, socket}
     end
   end
 
