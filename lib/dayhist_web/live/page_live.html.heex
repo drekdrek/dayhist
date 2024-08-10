@@ -43,12 +43,16 @@
       />
       <p class="dark:text-white text-black">Enable auto-fetching of your daylist.</p>
     </.form>
+
     <p class="text-sm text-gray-500 dark:text-zinc-200">
-      this will store your token on our server's database, so we can access your daylist automagically.
+      Daylists are queried every hour, depending on when your daylist refreshes
+      it may take up to an hour for it to automatically appear.
     </p>
     <p class="text-sm text-gray-500 dark:text-zinc-200">
-      more information is available
-      <.link class="text-blue-500" href={~p"/faq/autofetch"}>here</.link>
+      you can always manually fetch with the button.
+    </p>
+    <p class="text-sm text-gray-500 dark:text-zinc-200">
+      more information is available <.link class="text-blue-500" href={~p"/faq/autofetch"}>here</.link>
     </p>
     <br />
     <p class="text-sm text-gray-500 dark:text-zinc-200">
