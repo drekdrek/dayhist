@@ -15,23 +15,35 @@
               </a>
               <%= @playlist.spotify_playlist_name
               |> String.replace("daylist • ", "")
-              |> String.replace(@playlist.time_of_day, "") %>
-              <span class="font-medium"><%= @playlist.time_of_day %></span>
+              |> String.replace(@playlist.time_of_day || "", "") %>
+              <span class="font-bold"><%= @playlist.time_of_day || "" %></span>
             </p>
             <p class="text-sm text-gray-500 dark:text-zinc-300">
               <%= @tracks |> Enum.count() |> Integer.to_string() %> songs
             </p>
           </div>
+          <div class="max-w-lg">
+            <%= @playlist.description |> add_links() |> raw() %>
+          </div>
         </div>
-
         <%= if @user_info do %>
           <div class="flex items-center mt-4">
             <button
               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              phx-click="add-to-spotify"
-              title="Add to your Spotify"
+              phx-click="add_to_spotify"
+              title={
+                (@created_playlist_id != nil && "Playlist already created") ||
+                  "Add to your Spotify Playlists"
+              }
+              disabled={@created_playlist_id != nil}
             >
-              add to spotify
+              <%= if @created_playlist_id do %>
+                <span class="text-sm text-gray-500 dark:text-zinc-300">
+                  Open Playlist in new tab
+                </span>
+              <% else %>
+                add to spotify
+              <% end %>
             </button>
           </div>
         <% else %>
