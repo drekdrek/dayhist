@@ -5,7 +5,6 @@ defmodule Dayhist.Schemas.User do
   schema "users" do
     field :user_id, :string
     field :auto_fetch, :boolean, default: false
-    field :name, :string
 
     timestamps()
   end
@@ -14,8 +13,7 @@ defmodule Dayhist.Schemas.User do
     user
     |> cast(attrs, [
       :user_id,
-      :auto_fetch,
-      :name
+      :auto_fetch
     ])
     |> cast(attrs, [:user_id, :auto_fetch])
     |> validate_required([:user_id])

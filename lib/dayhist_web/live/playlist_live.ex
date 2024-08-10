@@ -42,11 +42,11 @@ defmodule DayhistWeb.PlaylistLive do
         []
       end
 
-    owner =
+    %{"display_name" => owner} =
       if playlist do
-        Dayhist.Schemas.User |> Dayhist.Repo.get_by(user_id: playlist.user_id) |> Map.get(:name)
+        Dayhist.SpotifyAPI.QueryUser.get_user(playlist.user_id)
       else
-        ""
+        %{"display_name" => "Unknown Username"}
       end
 
     socket =
