@@ -54,6 +54,8 @@ defmodule DayhistWeb do
       use Phoenix.LiveView,
         layout: {DayhistWeb.Layouts, :app}
 
+      import DayhistWeb.LiveUtil
+
       unquote(html_helpers())
     end
   end

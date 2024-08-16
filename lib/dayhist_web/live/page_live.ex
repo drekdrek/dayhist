@@ -19,7 +19,7 @@ defmodule DayhistWeb.PageLive do
     if socket.assigns.user_info do
       update_daylists(params, socket)
     else
-      {:noreply, socket}
+      socket |> noreply()
     end
   end
 
@@ -42,15 +42,15 @@ defmodule DayhistWeb.PageLive do
         false
       end
 
-    socket =
-      socket
-      |> assign(:form, to_form(%{"auto_fetch" => autofetch}))
-      |> assign(:user_info, session["spotify_info"])
-      |> assign(:daylists, nil)
-      |> assign(:meta, nil)
-      |> assign(:user_credentials, session["spotify_credentials"])
-
-    {:ok, socket}
+    socket
+    |> assign(
+      form: to_form(%{"auto_fetch" => autofetch}),
+      user_info: session["spotify_info"],
+      daylists: nil,
+      meta: nil,
+      user_credentials: session["spotify_credentials"]
+    )
+    |> ok()
   end
 
   def handle_info({:ok, user_id}, socket) do
@@ -58,17 +58,17 @@ defmodule DayhistWeb.PageLive do
     if user_id == socket.assigns.user_info.nickname do
       update_daylists(%{}, socket)
     else
-      {:noreply, socket}
+      socket |> noreply()
     end
   end
 
   def handle_info({:update, playlist_count, song_count}, socket) do
-    socket =
-      socket
-      |> assign(:playlist_count, playlist_count)
-      |> assign(:song_count, song_count)
-
-    {:noreply, socket}
+    socket
+    |> assign(
+      playlist_count: playlist_count,
+      song_count: song_count
+    )
+    |> noreply()
   end
 
   def handle_event("fetch-daylist", %{"id" => id}, socket) do
@@ -77,11 +77,9 @@ defmodule DayhistWeb.PageLive do
 
     Dayhist.Worker.start_link(user_id)
 
-    socket =
-      socket
-      |> push_event("disable-button", %{id: id, timeout: 5000, text: "fetching daylist..."})
-
-    {:noreply, socket}
+    socket
+    |> push_event("disable-button", %{id: id, timeout: 5000, text: "fetching daylist..."})
+    |> noreply()
   end
 
   def handle_event("change", %{"auto_fetch" => auto_fetch}, socket) do
@@ -106,31 +104,43 @@ defmodule DayhistWeb.PageLive do
         {:ok, _updated_user} ->
           # Handle the success case
           # Possibly update the socket assigns or trigger other logic
-          {:noreply, assign(socket, :auto_fetch, autofetch)}
+          socket
+          |> assign(auto_fetch: autofetch)
+          |> noreply()
 
         {:error, changeset} ->
           Logger.error(changeset)
           # Handle the error case
-          {:noreply, socket}
+          socket |> noreply()
       end
     else
       # Handle the case where the user is not found
-      {:noreply, socket}
+      socket |> noreply()
     end
   end
 
   def handle_event("update-filter", params, socket) do
     params = Map.delete(params, "_target")
-    {:noreply, push_patch(socket, to: ~p"/?#{params}")}
+
+    socket
+    |> push_patch(to: ~p"/?#{params}")
+    |> noreply()
   end
 
   defp update_daylists(params, socket) do
     case Daylists.list_daylists(params, socket.assigns.user_info.nickname) do
       {:ok, {daylists, meta}} ->
-        {:noreply, assign(socket, :daylists, daylists) |> assign(:meta, meta)}
+        socket
+        |> assign(
+          daylists: daylists,
+          meta: meta
+        )
+        |> noreply()
 
       {:error, _meta} ->
-        {:noreply, socket |> push_navigate(to: ~p"/")}
+        socket
+        |> push_navigate(to: ~p"/")
+        |> noreply()
     end
   end
 

@@ -18,7 +18,8 @@ defmodule DayhistWeb.PlaylistLive do
         created_playlist_id: nil
       )
 
-    {:ok, socket, layout: {DayhistWeb.Layouts, :playlist}}
+    socket
+    |> ok(layout: {DayhistWeb.Layouts, :playlist})
   end
 
   defp _maybe_get_spotify_playlist_url(user_id, _playlist) do
@@ -45,10 +46,9 @@ defmodule DayhistWeb.PlaylistLive do
         sa.playlist.contents
       )
 
-    socket =
-      socket |> assign(:created_playlist_id, playlist_id)
-
-    {:noreply, socket}
+    socket
+    |> assign(:created_playlist_id, playlist_id)
+    |> noreply()
   end
 
   def handle_params(%{"playlist" => playlist}, uri, socket) do
@@ -83,21 +83,19 @@ defmodule DayhistWeb.PlaylistLive do
         %{"display_name" => "Unknown Username"}
       end
 
-    socket =
-      socket
-      |> assign(:playlist, playlist)
-      |> assign(:tracks, tracks)
-      |> assign(:playlist_owner, owner)
-      |> assign(
-        :page_title,
+    socket
+    |> assign(
+      playlist: playlist,
+      tracks: tracks,
+      playlist_owner: owner,
+      page_title:
         if playlist do
           playlist.name |> String.replace("daylist • ", "")
         else
           "Playlist not found"
         end
-      )
-
-    {:noreply, socket}
+    )
+    |> noreply()
   end
 
   defp uuid_to_dashed_uuid(playlist_uuid),
