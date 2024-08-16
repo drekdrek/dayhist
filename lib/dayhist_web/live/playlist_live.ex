@@ -2,7 +2,7 @@ defmodule DayhistWeb.PlaylistLive do
   require Logger
   use DayhistWeb, :live_view
 
-  alias Dayhist.Schemas.{Daylist, Track}
+  alias Spotify.{Playlist, Track}
   import Ecto.Query
   # alias Dayhist.SpotifyAPI.AccessToken
 
@@ -11,10 +11,12 @@ defmodule DayhistWeb.PlaylistLive do
   def mount(_params, session, socket) do
     socket =
       socket
-      |> assign(:playlist, nil)
-      |> assign(:playlist_owner, nil)
-      |> assign(:user_info, session["spotify_info"])
-      |> assign(:created_playlist_id, nil)
+      |> assign(
+        playlist: nil,
+        playlist_owner: nil,
+        user_info: session["spotify_info"],
+        created_playlist_id: nil
+      )
 
     {:ok, socket, layout: {DayhistWeb.Layouts, :playlist}}
   end
@@ -61,7 +63,7 @@ defmodule DayhistWeb.PlaylistLive do
 
     playlist =
       try do
-        from(d in Daylist, where: d.uuid == ^playlist_uuid) |> Dayhist.Repo.one()
+        from(d in Playlist, where: d.uuid == ^playlist_uuid) |> Dayhist.Repo.one()
       rescue
         _ ->
           nil
@@ -69,7 +71,7 @@ defmodule DayhistWeb.PlaylistLive do
 
     tracks =
       if playlist do
-        from(t in Track, where: t.track_id in ^playlist.contents) |> Dayhist.Repo.all()
+        from(t in Track, where: t.id in ^playlist.contents) |> Dayhist.Repo.all()
       else
         []
       end
@@ -89,7 +91,7 @@ defmodule DayhistWeb.PlaylistLive do
       |> assign(
         :page_title,
         if playlist do
-          playlist.spotify_playlist_name |> String.replace("daylist • ", "")
+          playlist.name |> String.replace("daylist • ", "")
         else
           "Playlist not found"
         end

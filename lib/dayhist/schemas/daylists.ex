@@ -1,8 +1,8 @@
 defmodule Dayhist.Daylists do
-  alias Dayhist.Schemas.Daylist
+  alias Spotify.Playlist
 
   def list_daylists(params) do
-    Flop.validate_and_run(Daylist, params, for: Daylist, repo: Dayhist.Repo)
+    Flop.validate_and_run(Playlist, params, for: Playlist, repo: Dayhist.Repo)
   end
 
   def list_daylists(params, user_id) do

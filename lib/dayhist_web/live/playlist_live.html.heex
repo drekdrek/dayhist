@@ -3,7 +3,7 @@
     <div class="p-2">
       <div class="flex items-start gap-2 justify-between text-left">
         <div class="flex items-start gap-2 text-left">
-          <img src={@playlist.spotify_playlist_image} class="h-16 w-16 rounded-lg inline-block" />
+          <img src={@playlist.image} class="h-16 w-16 rounded-lg inline-block" />
           <div>
             <p class="text-xl text-gray-700 dark:text-zinc-200">
               <a
@@ -13,7 +13,7 @@
               >
                 <%= @playlist_owner %>'s
               </a>
-              <%= @playlist.spotify_playlist_name
+              <%= @playlist.name
               |> String.replace("daylist • ", "")
               |> String.replace(@playlist.time_of_day || "", "") %>
               <span class="font-bold"><%= @playlist.time_of_day || "" %></span>
@@ -68,7 +68,7 @@
     <div class="columns-5 gap-2 mb-4">
       <%= for track <- @tracks do %>
         <div class="break-inside-avoid p-2">
-          <.live_component id={track.track_id} module={DayhistWeb.TrackComponent} track={track} />
+          <.live_component id={track.id} module={DayhistWeb.TrackComponent} track={track} />
         </div>
       <% end %>
     </div>

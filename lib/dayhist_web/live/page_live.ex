@@ -31,7 +31,7 @@ defmodule DayhistWeb.PageLive do
 
     db_user =
       if session["spotify_info"],
-        do: Dayhist.Schemas.User |> Dayhist.Repo.get_by(user_id: session["spotify_info"].nickname),
+        do: Dayhist.User |> Dayhist.Repo.get_by(id: session["spotify_info"].nickname),
         else: nil
 
     autofetch =
@@ -94,12 +94,12 @@ defmodule DayhistWeb.PageLive do
     end
 
     user =
-      Dayhist.Repo.one(from u in Dayhist.Schemas.User, where: u.user_id == ^socket.assigns.user_info.nickname)
+      Dayhist.Repo.one(from u in Dayhist.User, where: u.id == ^socket.assigns.user_info.nickname)
 
     if user do
       changeset =
         user
-        |> Dayhist.Schemas.User.changeset(%{auto_fetch: autofetch})
+        |> Dayhist.User.changeset(%{auto_fetch: autofetch})
 
       # Use the changeset to update the user
       case Dayhist.Repo.update(changeset) do

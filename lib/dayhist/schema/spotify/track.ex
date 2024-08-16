@@ -1,7 +1,9 @@
-defmodule Dayhist.Schemas.Track do
+defmodule Spotify.Track do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
+
+  @schema_prefix "spotify"
 
   # basically store everything but the available_markets key
 
@@ -12,12 +14,12 @@ defmodule Dayhist.Schemas.Track do
   # track.album.images[0].url
   # track.external_urls.spotify
   # track.artists[*].name
-  @primary_key {:track_id, :string, []}
-  schema "tracks" do
+  @primary_key {:id, :string, []}
+  schema "track" do
     # uri can be created by doing "spotify:track:#{track_id}"
     # field :uri, :string
     field :name, :string
-    field :album_image_url, :string
+    field :image, :string
     # spotify_url can be created by doing "https://open.spotify.com/track/#{track_id}"
     # field :spotify_url, :string
     field :artists, {:array, :string}
@@ -25,27 +27,27 @@ defmodule Dayhist.Schemas.Track do
 
   def changeset(track, attrs) do
     track
-    |> cast(attrs, [:track_id, :name, :album_image_url, :artists])
-    |> validate_required([:track_id, :name, :album_image_url, :artists])
+    |> cast(attrs, [:id, :name, :image, :artists])
+    |> validate_required([:id, :name, :image, :artists])
   end
 
   def from_api_response(%{
         "track" => %{
-          "id" => track_id,
+          "id" => id,
           "name" => name,
-          "album" => %{"images" => [%{"url" => album_image_url} | _]},
+          "album" => %{"images" => [%{"url" => image} | _]},
           "artists" => artists
         }
       }) do
     artists_list = Enum.map(artists, & &1["name"])
 
     %{
-      track_id: track_id,
+      id: id,
       name: name,
-      album_image_url: album_image_url,
+      image: image,
       artists: artists_list
     }
   end
 
-  def count, do: from(t in Dayhist.Schemas.Track, select: count(t.track_id)) |> Dayhist.Repo.one()
+  def count, do: from(t in Spotify.Track, select: count(t.id)) |> Dayhist.Repo.one()
 end

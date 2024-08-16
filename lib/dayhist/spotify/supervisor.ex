@@ -3,7 +3,7 @@ defmodule Dayhist.Spotify.Supervisor do
 
   import Ecto.Query
   alias Dayhist.Repo
-  alias Dayhist.Schemas.User
+  alias Dayhist.User
   require Logger
 
   @hour_in_ms 60 * 60 * 1000
@@ -36,7 +36,9 @@ defmodule Dayhist.Spotify.Supervisor do
     Process.send_after(self(), :run_workers, @hour_in_ms)
   end
 
-  defp run_workers(users) when users == [] do
+  defguardp list_is_empty(list) when list == []
+
+  defp run_workers(users) when list_is_empty(users) do
     Logger.info("No users to run workers for.")
     schedule_next_run()
   end
@@ -53,8 +55,8 @@ defmodule Dayhist.Spotify.Supervisor do
     |> Enum.each(fn {user, index} ->
       delay = round(index * interval)
 
-      Logger.debug("Scheduling worker for user #{user.user_id} with a delay of #{delay} milliseconds.")
-      Process.send_after(self(), {:start_worker, user.user_id}, delay)
+      Logger.debug("Scheduling worker for user #{user.id} with a delay of #{delay} milliseconds.")
+      Process.send_after(self(), {:start_worker, user.id}, delay)
     end)
 
     Logger.debug("All workers have been scheduled.")

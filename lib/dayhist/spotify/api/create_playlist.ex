@@ -1,5 +1,5 @@
 defmodule Dayhist.SpotifyAPI.CreatePlaylist do
-  alias Dayhist.Schemas.Track
+  alias Spotify.Track
   alias Dayhist.Repo
   import Ecto.Query
   alias Dayhist.SpotifyAPI.AccessToken

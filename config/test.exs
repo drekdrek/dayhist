@@ -20,7 +20,6 @@ config :dayhist, DayhistWeb.Endpoint,
   secret_key_base: "iJWcDPlRw8l5bvUHY4teKRcItTBx66UHcpnhXSMTdcj/GBEL4/ME0moNJJzernXc",
   server: false
 
-
 # In test we don't send emails
 config :dayhist, Dayhist.Mailer, adapter: Swoosh.Adapters.Test
 

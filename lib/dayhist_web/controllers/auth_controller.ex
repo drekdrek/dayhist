@@ -1,6 +1,8 @@
 defmodule DayhistWeb.AuthController do
   use DayhistWeb, :controller
 
+  alias Spotify.Token
+
   require Logger
   import Ecto.Query
 
@@ -12,24 +14,24 @@ defmodule DayhistWeb.AuthController do
     user_id = auth.info.nickname
 
     user =
-      Dayhist.Repo.one(from u in Dayhist.Schemas.User, where: u.user_id == ^auth.info.nickname)
+      Dayhist.Repo.one(from u in Token, where: u.user_id == ^auth.info.nickname)
 
     if !user do
       Logger.info("creating user #{auth.info.nickname}")
 
-      Dayhist.Repo.insert(%Dayhist.Schemas.User{
-        user_id: user_id,
+      Dayhist.Repo.insert(%Dayhist.User{
+        id: user_id,
         auto_fetch: false
       })
     end
 
     # Store the SpotifyToken in the database
 
-    Dayhist.Repo.insert(%Dayhist.Schemas.SpotifyToken{
+    Dayhist.Repo.insert(%Token{
       access_token: auth.credentials.token,
       refresh_token: auth.credentials.refresh_token,
       expires_at: DateTime.from_unix!(auth.credentials.expires_at),
-      spotify_id: auth.info.nickname
+      user_id: auth.info.nickname
     })
 
     conn

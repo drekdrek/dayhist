@@ -1,7 +1,9 @@
-defmodule Dayhist.Schemas.Daylist do
+defmodule Spotify.Playlist do
   use Ecto.Schema
   import Ecto.Query
   import Ecto.Changeset
+
+  @schema_prefix "spotify"
 
   @derive {
     Flop.Schema,
@@ -9,11 +11,11 @@ defmodule Dayhist.Schemas.Daylist do
   }
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
-  schema "daylists" do
+  schema "playlist" do
     field :user_id, :string
-    field :spotify_playlist_id, :string
-    field :spotify_playlist_name, :string
-    field :spotify_playlist_image, :string
+    field :playlist_id, :string
+    field :name, :string
+    field :image, :string
     field :date, :date
     field :time_of_day, :string
     field :contents, {:array, :string}
@@ -26,20 +28,20 @@ defmodule Dayhist.Schemas.Daylist do
     daylist
     |> cast(attrs, [
       :user_id,
-      :spotify_playlist_id,
-      :spotify_playlist_name,
-      :spotify_playlist_image,
+      :playlist_id,
+      :name,
+      :image,
       :date,
       :time_of_day,
       :contents,
       :description
     ])
     |> validate_required([
-      :spotify_playlist_id,
+      :playlist_id,
       :user_id,
       :date
     ])
   end
 
-  def count, do: from(d in Dayhist.Schemas.Daylist, select: count(d.uuid)) |> Dayhist.Repo.one()
+  def count, do: from(d in Spotify.Playlist, select: count(d.uuid)) |> Dayhist.Repo.one()
 end

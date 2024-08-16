@@ -1,11 +1,10 @@
 defmodule DayhistWeb.Plugs.SetCounts do
   import Plug.Conn
-  alias Dayhist.Schemas.{Daylist, Track}
-
+  alias Spotify.{Playlist, Track}
   def init(default), do: default
 
   def call(conn, _default) do
-    playlist_count = Daylist.count()
+    playlist_count = Playlist.count()
     song_count = Track.count()
 
     conn

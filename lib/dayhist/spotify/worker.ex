@@ -1,7 +1,7 @@
 defmodule Dayhist.Worker do
   require Logger
   alias Dayhist.SpotifyAPI.QueryDaylist
-  alias Dayhist.Schemas.{Track, Daylist}
+  alias Spotify.{Track, Playlist}
   alias Dayhist.Repo
 
   def start_link(user_id) do
@@ -29,35 +29,31 @@ defmodule Dayhist.Worker do
 
     insert_contents(contents)
 
-    content_ids = contents |> Enum.map(fn track -> track.track_id end)
+    content_ids = contents |> Enum.map(fn track -> track.id end)
 
     changeset =
-      Daylist.changeset(%Daylist{}, %{
+      Playlist.changeset(%Playlist{}, %{
         user_id: user_id,
-        spotify_playlist_id: daylist["external_urls"]["spotify"],
+        playlist_id: daylist["external_urls"]["spotify"],
         date: Date.utc_today(),
         time_of_day: time_of_day,
-        spotify_playlist_name: daylist["name"],
-        spotify_playlist_image: daylist["images"] |> Enum.at(0) |> Map.get("url"),
+        name: daylist["name"],
+        image: daylist["images"] |> Enum.at(0) |> Map.get("url"),
         contents: content_ids,
         description: daylist["description"]
       })
 
-    Logger.warning("changeset: #{inspect(changeset)}")
-
     existing_daylist =
-      Repo.get_by(Daylist,
+      Repo.get_by(Playlist,
         user_id: user_id,
         time_of_day: time_of_day,
         contents: content_ids,
-        spotify_playlist_name: daylist["name"],
+        name: daylist["name"],
         description: daylist["description"]
       )
 
-    Logger.warning("existing_daylist: #{inspect(existing_daylist)}")
-
     if existing_daylist do
-      Daylist.changeset(existing_daylist, changeset.changes)
+      Playlist.changeset(existing_daylist, changeset.changes)
       |> Repo.update()
     else
       Repo.insert(changeset)
@@ -67,8 +63,8 @@ defmodule Dayhist.Worker do
 
       Phoenix.PubSub.broadcast(Dayhist.PubSub, "stats:update", {
         :update,
-        Dayhist.Schemas.Daylist.count(),
-        Dayhist.Schemas.Track.count()
+        Playlist.count(),
+        Track.count()
       })
     end
   end
@@ -76,7 +72,7 @@ defmodule Dayhist.Worker do
   defp insert_contents(contents) do
     contents
     |> Enum.each(fn track ->
-      case Dayhist.Repo.get(Track, track.track_id) do
+      case Dayhist.Repo.get(Track, track.id) do
         nil -> Track.changeset(%Track{}, track)
         post -> Track.changeset(post, track)
       end
