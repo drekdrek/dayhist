@@ -32,6 +32,22 @@ defmodule DayhistWeb.PlaylistLive do
     end
   end
 
+  def handle_event("delete_playlist", _, socket) do
+    sa = socket.assigns
+
+    # double check that the user is the owner of the playlist
+
+    if sa.user_info.nickname == sa.playlist.user_id do
+      from(d in Playlist, where: d.uuid == ^sa.playlist.uuid)
+      |> Dayhist.Repo.one()
+      |> Dayhist.Repo.delete()
+    end
+
+    socket
+    |> assign(:playlist, nil)
+    |> noreply()
+  end
+
   def handle_event("add_to_spotify", _, socket) do
     sa = socket.assigns
 
