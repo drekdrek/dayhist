@@ -29,15 +29,13 @@ config :ueberauth, Ueberauth,
     spotify:
       {Ueberauth.Strategy.Spotify,
        [
-         default_scope:
-           "playlist-read-private user-read-email playlist-modify-public playlist-modify-private"
+         default_scope: "playlist-read-private user-read-email playlist-modify-public playlist-modify-private"
        ]}
   ]
 
 config :ueberauth, Ueberauth.Strategy.Spotify.OAuth,
   client_id: System.get_env("SPOTIFY_CLIENT_ID"),
   client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
-
 
 # Configures the mailer
 #
@@ -59,6 +57,7 @@ config :esbuild,
   ]
 
 # Configure tailwind (the version is required)
+
 config :tailwind,
   version: "3.4.3",
   dayhist: [

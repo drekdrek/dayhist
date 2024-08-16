@@ -11,4 +11,3 @@ defmodule DayhistWeb.Plugs.RedirectPlug do
     |> put_session(:redirect_uri, redirect_uri)
   end
 end
-
