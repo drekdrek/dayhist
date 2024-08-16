@@ -55,7 +55,6 @@ defmodule Dayhist.Spotify.Supervisor do
     |> Enum.each(fn {user, index} ->
       delay = round(index * interval)
 
-      Logger.debug("Scheduling worker for user #{user.id} with a delay of #{delay} milliseconds.")
       Process.send_after(self(), {:start_worker, user.id}, delay)
     end)
 
