@@ -19,7 +19,7 @@ defmodule DayhistWeb.AuthController do
     if !user do
       Logger.info("creating user #{auth.info.nickname}")
 
-      Dayhist.Repo.insert(%Dayhist.User{
+      Dayhist.Repo.insert(%Meta.User{
         id: user_id,
         auto_fetch: false
       })

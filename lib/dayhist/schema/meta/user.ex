@@ -1,8 +1,8 @@
-defmodule Dayhist.User do
+defmodule Meta.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @schema_prefix "dayhist"
+  @schema_prefix "meta"
 
   @primary_key {:id, :string, []}
   schema "user" do

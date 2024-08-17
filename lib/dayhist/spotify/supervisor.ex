@@ -3,7 +3,7 @@ defmodule Dayhist.Spotify.Supervisor do
 
   import Ecto.Query
   alias Dayhist.Repo
-  alias Dayhist.User
+  alias Meta.User
   require Logger
 
   @hour_in_ms 60 * 60 * 1000
