@@ -1,9 +1,6 @@
 defmodule Dayhist.Spotify.Supervisor do
   use GenServer
 
-  import Ecto.Query
-  alias Dayhist.Repo
-  alias Meta.User
   require Logger
 
   @hour_in_ms 60 * 60 * 1000
@@ -21,7 +18,7 @@ defmodule Dayhist.Spotify.Supervisor do
 
   def handle_info(:run_workers, _) do
     Logger.info("handle_info(:run_workers, _)")
-    users = fetch_users_from_db()
+    users = Meta.UserBehavior.get_all_autofetch()
     run_workers(users)
     schedule_next_run()
     {:noreply, users}
@@ -59,9 +56,5 @@ defmodule Dayhist.Spotify.Supervisor do
     end)
 
     Logger.debug("All workers have been scheduled.")
-  end
-
-  defp fetch_users_from_db do
-    Repo.all(from u in User, where: u.auto_fetch == true, select: u)
   end
 end

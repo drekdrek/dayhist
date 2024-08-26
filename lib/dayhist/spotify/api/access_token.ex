@@ -1,26 +1,15 @@
-alias Spotify.Token
-import Ecto.Query
-alias Dayhist.Repo
-require Logger
-
 defmodule Dayhist.SpotifyAPI.AccessToken do
+  alias Spotify.Token
+  alias Spotify.TokenBehavior
+  alias Dayhist.Repo
+  require Logger
   @client_id Application.compile_env(:dayhist, :client_id, "")
   @client_secret Application.compile_env(:dayhist, :client_secret, "")
 
   @basic_auth "Basic " <> Base.encode64("#{@client_id}:#{@client_secret}")
 
-  defp get_spotify_token(user_id) do
-    Repo.all(
-      from st in Token,
-        where: st.user_id == ^user_id,
-        order_by: [desc: st.expires_at],
-        limit: 1
-    )
-    |> List.first()
-  end
-
   def get_access_token(user_id) do
-    spotify_token = get_spotify_token(user_id)
+    spotify_token = TokenBehavior.get_most_recent_token(user_id)
 
     spotify_token =
       if spotify_token.expires_at < DateTime.utc_now() do
@@ -87,14 +76,15 @@ defmodule Dayhist.SpotifyAPI.AccessToken do
 
   defp maybe_clean_up_expired_tokens(user_id) do
     {_, to_delete} =
-      Repo.all(
-        from st in Token,
-          where: st.user_id == ^user_id and st.expires_at < ^DateTime.utc_now()
-      )
+      TokenBehavior.get_expired_tokens("22fzreq5auy5njejk6fzp7nhy")
+      |> Enum.reverse()
       |> List.pop_at(0)
 
+    to_delete =
+      Enum.map(to_delete, fn token -> token.id end)
+
     if length(to_delete) > 0 do
-      Repo.delete_all(from st in Token, where: st.id in ^Enum.map(to_delete, & &1.id))
+      TokenBehavior.delete_tokens(to_delete)
     end
   end
 end

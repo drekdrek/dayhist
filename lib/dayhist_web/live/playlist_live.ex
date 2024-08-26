@@ -36,15 +36,13 @@ defmodule DayhistWeb.PlaylistLive do
     sa = socket.assigns
 
     # double check that the user is the owner of the playlist
-
     if sa.user_info.nickname == sa.playlist.user_id do
-      from(d in Playlist, where: d.uuid == ^sa.playlist.uuid)
-      |> Dayhist.Repo.one()
-      |> Dayhist.Repo.delete()
+      Spotify.PlaylistBehavior.delete_playlist(sa.playlist.uuid)
     end
 
     socket
     |> assign(:playlist, nil)
+    |> redirect(to: ~p"/")
     |> noreply()
   end
 
