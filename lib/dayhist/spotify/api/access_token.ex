@@ -76,7 +76,7 @@ defmodule Dayhist.SpotifyAPI.AccessToken do
 
   defp maybe_clean_up_expired_tokens(user_id) do
     {_, to_delete} =
-      TokenBehavior.get_expired_tokens("22fzreq5auy5njejk6fzp7nhy")
+      TokenBehavior.get_expired_tokens(user_id)
       |> Enum.reverse()
       |> List.pop_at(0)
 
