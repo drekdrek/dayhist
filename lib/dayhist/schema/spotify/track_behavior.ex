@@ -1,6 +1,6 @@
 defmodule Spotify.TrackBehavior do
   alias Dayhist.Repo
-  alias Spotify.{Track, Playlist}
+  alias Spotify.Track
   import Ecto.Query
 
   def get_track(track_id) do
@@ -12,7 +12,7 @@ defmodule Spotify.TrackBehavior do
   end
 
   def delete_if_orphan(track_id) do
-    playlist = from(p in Playlist, where: ^track_id in p.contents) |> Repo.all()
+    playlist = Spotify.PlaylistBehavior.get_playlists_with_contents(track_id)
 
     if playlist == [] do
       delete(track_id)
