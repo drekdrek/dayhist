@@ -1,5 +1,5 @@
 defmodule DayhistWeb.TrackComponent do
-  use Phoenix.LiveComponent
+  use Phoenix.Component
 
   def render(assigns) do
     ~H"""
