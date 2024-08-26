@@ -2,7 +2,7 @@ defmodule DayhistWeb.PageLive do
   require Logger
   use DayhistWeb, :live_view
 
-  alias Dayhist.Daylists
+  alias Dayhist.Flop.Playlists
 
   import Flop.Phoenix
 
@@ -128,7 +128,7 @@ defmodule DayhistWeb.PageLive do
   end
 
   defp update_daylists(params, socket) do
-    case Daylists.list_daylists(params, socket.assigns.user_info.nickname) do
+    case Playlists.list_daylists(params, socket.assigns.user_info.nickname) do
       {:ok, {daylists, meta}} ->
         socket
         |> assign(

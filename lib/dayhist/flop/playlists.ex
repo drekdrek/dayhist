@@ -1,4 +1,4 @@
-defmodule Dayhist.Daylists do
+defmodule Dayhist.Flop.Playlists do
   alias Spotify.Playlist
 
   def list_daylists(params) do
@@ -6,6 +6,6 @@ defmodule Dayhist.Daylists do
   end
 
   def list_daylists(params, user_id) do
-    list_daylists(params |> Map.put(:user_id, user_id))
+    list_daylists(params |> Map.put("user_id", user_id))
   end
 end
