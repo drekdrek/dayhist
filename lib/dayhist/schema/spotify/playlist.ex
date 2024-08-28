@@ -13,7 +13,6 @@ defmodule Spotify.Playlist do
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
   schema "playlist" do
     field :user_id, :string
-    field :playlist_id, :string
     field :name, :string
     field :image, :string
     field :date, :date
@@ -28,7 +27,6 @@ defmodule Spotify.Playlist do
     daylist
     |> cast(attrs, [
       :user_id,
-      :playlist_id,
       :name,
       :image,
       :date,
@@ -37,7 +35,6 @@ defmodule Spotify.Playlist do
       :description
     ])
     |> validate_required([
-      :playlist_id,
       :user_id,
       :date
     ])

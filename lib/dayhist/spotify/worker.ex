@@ -34,7 +34,6 @@ defmodule Dayhist.Worker do
     changeset =
       Playlist.changeset(%Playlist{}, %{
         user_id: user_id,
-        playlist_id: daylist["external_urls"]["spotify"],
         date: Date.utc_today(),
         time_of_day: time_of_day,
         name: daylist["name"],
