@@ -53,7 +53,7 @@ defmodule DayhistWeb.PlaylistLive do
       Dayhist.SpotifyAPI.CreatePlaylist.create_playlist_and_populate(
         sa.user_info.nickname,
         {
-          "#{sa.playlist_owner}'s #{sa.playlist.spotify_playlist_name}",
+          "#{sa.playlist_owner}'s daylist • #{sa.playlist.spotify_playlist_name}",
           "This daylist is from #{sa.playlist.date |> Date.to_string()}. created with https://dayhi.st",
           true
         },
@@ -104,7 +104,7 @@ defmodule DayhistWeb.PlaylistLive do
       playlist_owner: owner,
       page_title:
         if playlist do
-          playlist.name |> String.replace("daylist • ", "")
+          playlist.name
         else
           "Playlist not found"
         end

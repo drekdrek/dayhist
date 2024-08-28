@@ -20,7 +20,7 @@
       <Flop.Phoenix.table items={@daylists} meta={@meta} path={~p"/"}>
         <:col :let={daylist} label="Name" field={:name}>
           <.link href={~p"/p/#{daylist.uuid |> String.replace("-", "")}"} class="text-blue-500">
-            <%= daylist.name |> String.replace("daylist • ", "") %>
+            <%= daylist.name %>
           </.link>
         </:col>
       </Flop.Phoenix.table>

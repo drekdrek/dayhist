@@ -31,12 +31,14 @@ defmodule Dayhist.Worker do
 
     content_ids = contents |> Enum.map(fn track -> track.id end)
 
+    daylist_name = daylist["name"] |> String.replace("daylist • ", "")
+
     changeset =
       Playlist.changeset(%Playlist{}, %{
         user_id: user_id,
         date: Date.utc_today(),
         time_of_day: time_of_day,
-        name: daylist["name"],
+        name: daylist_name,
         image: daylist["images"] |> Enum.at(0) |> Map.get("url"),
         contents: content_ids,
         description: daylist["description"]
@@ -47,7 +49,7 @@ defmodule Dayhist.Worker do
         user_id: user_id,
         time_of_day: time_of_day,
         contents: content_ids,
-        name: daylist["name"],
+        name: daylist_name,
         description: daylist["description"]
       )
 
