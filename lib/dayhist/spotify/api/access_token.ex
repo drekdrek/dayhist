@@ -8,7 +8,7 @@ defmodule Dayhist.SpotifyAPI.AccessToken do
 
   @basic_auth "Basic " <> Base.encode64("#{@client_id}:#{@client_secret}")
 
-  def get_access_token(user_id) do
+  def get(user_id) do
     spotify_token = TokenBehavior.get_most_recent_token(user_id)
 
     spotify_token =

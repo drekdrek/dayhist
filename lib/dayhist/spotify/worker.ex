@@ -11,7 +11,7 @@ defmodule Dayhist.Worker do
   def task(user_id) do
     Logger.info("User #{user_id} is working.")
 
-    daylist = QueryDaylist.get_daylist(user_id)
+    daylist = QueryDaylist.get(user_id)
 
     if daylist do
       insert_daylist(user_id, daylist)

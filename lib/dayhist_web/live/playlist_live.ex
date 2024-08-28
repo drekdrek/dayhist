@@ -50,7 +50,7 @@ defmodule DayhistWeb.PlaylistLive do
     sa = socket.assigns
 
     playlist_id =
-      Dayhist.SpotifyAPI.CreatePlaylist.create_playlist_and_populate(
+      Dayhist.SpotifyAPI.CreatePlaylist.create(
         sa.user_info.nickname,
         {
           "#{sa.playlist_owner}'s daylist • #{sa.playlist.spotify_playlist_name}",
@@ -92,7 +92,7 @@ defmodule DayhistWeb.PlaylistLive do
 
     %{"display_name" => owner} =
       if playlist do
-        Dayhist.SpotifyAPI.QueryUser.get_user(playlist.user_id)
+        Dayhist.SpotifyAPI.User.get(playlist.user_id)
       else
         %{"display_name" => "Unknown Username"}
       end
