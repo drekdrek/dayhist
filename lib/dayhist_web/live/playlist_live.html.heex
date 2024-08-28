@@ -67,7 +67,7 @@
     <div class="columns-5 gap-2 mb-4">
       <%= for track <- @tracks do %>
         <div class="break-inside-avoid p-2">
-          <DayhistWeb.TrackComponent.render track={track} id={track.id} />
+          <DayhistWeb.Components.Track.render track={track} id={track.id} />
         </div>
       <% end %>
     </div>

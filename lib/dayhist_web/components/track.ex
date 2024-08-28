@@ -1,4 +1,4 @@
-defmodule DayhistWeb.TrackComponent do
+defmodule DayhistWeb.Components.Track do
   use Phoenix.Component
 
   def render(assigns) do
