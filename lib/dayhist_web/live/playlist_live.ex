@@ -50,10 +50,10 @@ defmodule DayhistWeb.PlaylistLive do
     sa = socket.assigns
 
     playlist_id =
-      Dayhist.SpotifyAPI.CreatePlaylist.create(
+      Dayhist.SpotifyAPI.Playlist.create(
         sa.user_info.nickname,
         {
-          "#{sa.playlist_owner}'s daylist • #{sa.playlist.spotify_playlist_name}",
+          "#{sa.playlist_owner}'s daylist • #{sa.playlist.name}",
           "This daylist is from #{sa.playlist.date |> Date.to_string()}. created with https://dayhi.st",
           true
         },
