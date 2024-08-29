@@ -35,7 +35,7 @@ defmodule Dayhist.SpotifyAPI.Playlist do
     json = %{
       "uris" =>
         Spotify.TrackBehavior.get_tracks(contents)
-        |> Enum.map(fn track -> "spotify:track:#{track.track_id}" end)
+        |> Enum.map(fn track -> "spotify:track:#{track.id}" end)
     }
 
     Req.post("https://api.spotify.com/v1/playlists/#{playlist_id}/tracks",
