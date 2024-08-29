@@ -7,6 +7,22 @@
     <.live_title suffix=" · dayhi.st">
       <%= assigns[:page_title] || "dayhi.st" %>
     </.live_title>
+    <%= if !is_nil(assigns[:head_meta]) do %>
+      <%= for m <- @head_meta do %>
+        <%= Phoenix.HTML.raw(m) %>
+      <% end %>
+    <% end %>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+    />
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
