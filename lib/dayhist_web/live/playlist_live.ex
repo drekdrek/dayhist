@@ -119,8 +119,8 @@ defmodule DayhistWeb.PlaylistLive do
     regex = ~r|<a href="spotify:playlist:(?<id>[^"]+)">(?<name>[^<]+)</a>|
 
     # Replace all matches in the given html_string.
-    Regex.replace(regex, description, fn _full_match, id, name ->
-      "<a class= \"text-blue-500\" href=\"https://open.spotify.com/playlist/#{id}\">#{name}</a>"
+    Regex.replace(regex, description, fn _, id, name ->
+      "<a class= \"text-blue-500 hover:text-blue-700 dark:hover:text-blue-300\" href=\"https://open.spotify.com/playlist/#{id}\">#{name}</a>"
     end)
   end
 end
