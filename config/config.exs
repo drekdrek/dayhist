@@ -33,10 +33,6 @@ config :ueberauth, Ueberauth,
        ]}
   ]
 
-config :ueberauth, Ueberauth.Strategy.Spotify.OAuth,
-  client_id: System.get_env("SPOTIFY_CLIENT_ID"),
-  client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
-
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
@@ -68,11 +64,6 @@ config :tailwind,
     ),
     cd: Path.expand("../assets", __DIR__)
   ]
-
-config :dayhist,
-  client_id: System.get_env("SPOTIFY_CLIENT_ID"),
-  client_secret: System.get_env("SPOTIFY_CLIENT_SECRET"),
-  user_account_id: System.get_env("SPOTIFY_USER_ACCOUNT_ID")
 
 # Configures Elixir's Logger
 config :logger, :console,

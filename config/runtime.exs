@@ -114,4 +114,11 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+  config :dayhist,
+    client_id: System.get_env("SPOTIFY_CLIENT_ID"),
+    client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
+
+  config :ueberauth, Ueberauth.Strategy.Spotify.OAuth,
+    client_id: System.get_env("SPOTIFY_CLIENT_ID"),
+    client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
 end
