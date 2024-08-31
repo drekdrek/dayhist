@@ -3,8 +3,8 @@ defmodule Dayhist.SpotifyAPI.AccessToken do
   alias Spotify.TokenBehavior
   alias Dayhist.Repo
   require Logger
-  @client_id Application.compile_env(:dayhist, :client_id, "")
-  @client_secret Application.compile_env(:dayhist, :client_secret, "")
+  @client_id Application.get_env(:dayhist, :client_id)
+  @client_secret Application.get_env(:dayhist, :client_secret)
 
   @basic_auth "Basic " <> Base.encode64("#{@client_id}:#{@client_secret}")
 
