@@ -1,3 +1,5 @@
+# DUE TO SPOTIFY API CHANGES THIS IS NO LONGER POSSIBLE
+
 # Dayhist
 
 To start your Phoenix server:
